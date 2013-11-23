@@ -73,6 +73,10 @@ enum state_tag{
 				//bibkey = extract_bibkey(s);
 				printf("%s\n",s);
 				break;
+			case SINGLE_AUTHOR:
+				printf("%s\n", authors);
+				authors = "";
+				break;
 			case AUTHOR:
 				authors = Str_catv(authors,1,0,s,1,0," ",1,2,NULL);
 				break;

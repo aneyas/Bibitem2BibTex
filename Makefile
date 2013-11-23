@@ -12,12 +12,14 @@ CIISOURCE := $(wildcard cii_src/*.c)
 SRCOBJ := $(SOURCE:src/%.c=obj/%.o) 
 CIISRCOBJ := $(CIISOURCE:cii_src/%.c=obj/%.o)
 
+INCLUDE := $(wildcard include/*.h)
+
 
 #Note mem.o and memchk.o cannot appear at the same time.
 convert:$(SRCOBJ) $(CIISRCOBJ)
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ $(OPT)
 
-$(SRCOBJ):obj/%.o:src/%.c
+$(SRCOBJ):obj/%.o:src/%.c $(INCLUDE)
 	$(CC) -c $< -o $@ -Iinclude -Icii_include $(OPT)
 
 $(CIISRCOBJ):obj/%.o:cii_src/%.c

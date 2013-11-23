@@ -15,6 +15,7 @@ enum state_tag{
 	PAGE_NUMBER,
 	PAGE_NUMBER_END,
 	YEAR,
+	SINGLE_AUTHOR,
 };
 
 
