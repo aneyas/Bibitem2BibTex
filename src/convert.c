@@ -15,8 +15,8 @@ int
 main(){
 	//Open the file to read.
 	FILE *fp;
-	fp = fopen("BZT_for_NC_bibitem.txt", "r");
-	//fp = fopen("test.txt", "r");
+	//fp = fopen("BZT_for_NC_bibitem.txt", "r");
+	fp = fopen("test.txt", "r");
 
 	if( fp == NULL )
 	{
@@ -26,89 +26,103 @@ main(){
 
 	//Read char*
 	char* s = info;
-	enum state_tag current_state, next_state;
 	int scanf_state;
-	
-	current_state = BEGIN;
+
+	enum state_tag current_state, next_state;
+	enum op_tag current_op, next_op;
+
+	current_op = BEGIN;
+	current_state = BIBKEY;
 
 
-/*
-enum state_tag{
-	BEGIN = 0,
-	NEW_BIBITEM,
-	BIBKEY_END,
-	BLOCK_BREAK,
-	AUTHOR,
-	LAST_AUTHOR,
-	AUTHOR_END,
-	JOURNAL_NAME,
-	PAGE_NUMBER,
-	PAGE_NUMBER_END,
-	YEAR,
-};
-*/
+	//s = "D.";
+	//authors = Str_catv(authors,1,0,s,1,0," ",1,2,NULL);
+	//printf("%s\n",authors);
 
-	char* bibkey=""; //Initialize the string.
-	char* authors="";
-	bool isSingleAuthtor=true;
-	char* journal="";
-	char* year ="";
+	//exit(0);
 
-//s = "D.";
-//authors = Str_catv(authors,1,0,s,1,0," ",1,2,NULL);
-//printf("%s\n",authors);
-
-//exit(0);
-
+	char* info="";
 
 	while(EOF!=fscanf(fp, "%s", s)){
 
-		next_state = state_change(current_state,s);
+		switch (current_op){
+			case BEGIN:
+				switch (current_state){
+					case BIBKEY:
+						info = Str_catv(info,1,0," ",1,2,s,1,0,NULL);
+						printf("%s\n", info);
+						info = "";
+						current_op = CONTINUE;
+						current_state = AUTHOR;
+						break;
+					default:
+						current_op = CONTINUE;
+						break;
+				}
+				break;
+			case END:
+				info = Str_catv(info,1,0," ",1,2,s,1,0,NULL);
+				switch (current_state){
+					case YEAR:
+						printf("%s\n", info);
+						info="";
+						printf("%s\n", "-----------");
+						current_op = BEGIN;
+						current_state = BIBKEY;
+						break;
+					case AUTHOR:
+						if((strlen(s) >= 1 && !Str_cmp(s,-1,0,",",1,2))){
+							printf("%s\n", info);
+							info="";
+							current_op = CONTINUE;
+							current_state = JOURNAL;
+						}else{
+							current_op = END;
+							current_state = AUTHOR;
+						}
+						break;
+					case JOURNAL:
+						printf("%s\n", info);
+						info="";
+						current_op = END;
+						current_state = YEAR;
+						break;
+					case BIBKEY:
+						printf("%s\n", "Cannot be here (C). Somthing is wrong!");
+						exit(1);
+				}
+				break;
+			case CONTINUE:
+				info = Str_catv(info,1,0," ",1,2,s,1,0,NULL);
+				switch (current_state){
+					case YEAR:
+						printf("%s\n", "Cannot be here (A). Somthing is wrong!");
+						exit(1);
+					case BIBKEY:
+						printf("%s\n", "Cannot be here (B). Somthing is wrong!");
+						exit(1);
+					case AUTHOR:
+						if (strlen(s) >= 3 && Str_find(s,1,4,"and")){
+							current_op = END;
+							current_state = AUTHOR;
+						}else{
+							current_op = CONTINUE;
+							current_state = AUTHOR;
+						}
+						break;
+					case JOURNAL:
+						if((strlen(s) >= 1 && !Str_cmp(s,-1,0,",",1,2))){ //Volume
+							current_op = END;
+							current_state = JOURNAL;
+						}else{
+							current_op = CONTINUE;
+							current_state = JOURNAL;
+						}
+						break;
 
-		//printf("%d, %d, %s\n", current_state, next_state,s);
-
-		switch(next_state){
-			case BIBKEY_END:
-				printf("%s\n", "----------------");
-				//bibkey = extract_bibkey(s);
-				printf("%s\n",s);
-				break;
-			case SINGLE_AUTHOR:
-				printf("%s\n", authors);
-				authors = "";
-				break;
-			case AUTHOR:
-				authors = Str_catv(authors,1,0,s,1,0," ",1,2,NULL);
-				break;
-			case LAST_AUTHOR:
-				authors = Str_catv(authors,1,0,s,1,0," ",1,2,NULL);
-				break;
-			case AUTHOR_END:
-				authors = Str_catv(authors,1,0,s,1,0," ",1,2,NULL);
-				printf("%s\n", authors);
-				authors = "";
-				break;
-			case JOURNAL_NAME:
-				journal = Str_catv(journal,1,0,s,1,0," ",1,2,NULL);
-				break;
-			case PAGE_NUMBER:
-				journal = Str_catv(journal,1,0,s,1,0," ",1,2,NULL);
-				break;
-			case PAGE_NUMBER_END:
-				journal = Str_catv(journal,1,0,s,1,0," ",1,2,NULL);
-				printf("%s\n", journal);
-				journal = "";
-				break;
-			case YEAR:
-				year = Str_catv(year,1,0,s,1,0," ",1,2,NULL);
-				printf("%s\n", year);
-				year ="";
-				
-				break;
-			default:			
+				}
 				break;
 		}
-		current_state = next_state;
 
 	}
 
