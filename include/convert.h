@@ -24,5 +24,5 @@ enum op_tag{
 
 
 extern char *extract_bibkey(const char *s);
-extern bool IsSingleAuthor(const FILE* fp);
+extern bool IsSingleAuthor(FILE* fp);
 #endif

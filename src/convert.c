@@ -3,7 +3,7 @@
 #include"convert.h"
 
 //No bibitem entry should be longer than 1024 char.
-static char info[1024];
+static char s[1024];
 
 
 int
@@ -20,16 +20,13 @@ main(){
 		exit(EXIT_FAILURE);
 	}
 
-	//Read char*
-	char* s = info;
-	int scanf_state;
-
 	enum state_tag current_state, next_state;
 	enum op_tag current_op, next_op;
 
 	current_op = BEGIN;
 	current_state = BIBKEY;
 
+    char* info="";
 
 	//s = "D.";
 	//authors = Str_catv(authors,1,0,s,1,0," ",1,2,NULL);
@@ -37,10 +34,8 @@ main(){
 
 	//exit(0);
 
-	char* info="";
-
 	while(EOF!=fscanf(fp, "%s", s)){
-        printf("@-- %d %d %s\n", current_op,current_state, info);
+        //printf("@-- %d %d %s | %s\n", current_op,current_state, info, s);
 
 		switch (current_op){
 			case BEGIN:
@@ -125,7 +120,6 @@ main(){
 				}
 				break;
 		}
-
 	}
 
 	//Last phase of the program.
