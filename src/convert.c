@@ -1,10 +1,5 @@
 // This is the main file.
 
-#include<stdio.h>
-#include<string.h>
-#include<stdlib.h>
-#include<stdbool.h>
-
 #include"convert.h"
 
 //No bibitem entry should be longer than 1024 char.
@@ -16,7 +11,8 @@ main(){
 	//Open the file to read.
 	FILE *fp;
 	//fp = fopen("BZT_for_NC_bibitem.txt", "r");
-	fp = fopen("test.txt", "r");
+	fp = fopen("BZT_for_NC_bibitem_NO_book.txt", "r");
+	//fp = fopen("test.txt", "r");
 
 	if( fp == NULL )
 	{
@@ -44,6 +40,7 @@ main(){
 	char* info="";
 
 	while(EOF!=fscanf(fp, "%s", s)){
+        printf("@-- %d %d %s\n", current_op,current_state, info);
 
 		switch (current_op){
 			case BEGIN:
@@ -52,8 +49,13 @@ main(){
 						info = Str_catv(info,1,0," ",1,2,s,1,0,NULL);
 						printf("%s\n", info);
 						info = "";
-						current_op = CONTINUE;
-						current_state = AUTHOR;
+						if(IsSingleAuthor(fp)){
+							current_op = END;
+							current_state = AUTHOR;
+						}else{
+							current_op = CONTINUE;
+							current_state = AUTHOR;
+						}
 						break;
 					default:
 						current_op = CONTINUE;
@@ -125,7 +127,6 @@ main(){
 		}
 
 	}
-
 
 	//Last phase of the program.
 	fclose(fp);
