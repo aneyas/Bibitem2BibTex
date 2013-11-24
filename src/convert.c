@@ -28,11 +28,10 @@ main(){
 
     char* info="";
 
-	//s = "D.";
-	//authors = Str_catv(authors,1,0,s,1,0," ",1,2,NULL);
-	//printf("%s\n",authors);
 
-	//exit(0);
+    struct raw_record_tag raw_records[400];
+    struct bibtex_record_tag bibtex_records[400];
+    int count = 0;
 
 	while(EOF!=fscanf(fp, "%s", s)){
         //printf("@-- %d %d %s | %s\n", current_op,current_state, info, s);
@@ -42,7 +41,8 @@ main(){
 				switch (current_state){
 					case BIBKEY:
 						info = Str_catv(info,1,0," ",1,2,s,1,0,NULL);
-						printf("%s\n", info);
+						//printf("%s\n", info);
+                        raw_records[count].bibkey = Str_dup(info,1,0,1);
 						info = "";
 						if(IsSingleAuthor(fp)){
 							current_op = END;
@@ -61,15 +61,18 @@ main(){
 				info = Str_catv(info,1,0," ",1,2,s,1,0,NULL);
 				switch (current_state){
 					case YEAR:
-						printf("%s\n", info);
+						//printf("%s\n", info);
+                        raw_records[count].year = Str_dup(info,1,0,1);
+                        ++count;
 						info="";
-						printf("%s\n", "-----------");
+						//printf("%s\n", "-----------");
 						current_op = BEGIN;
 						current_state = BIBKEY;
 						break;
 					case AUTHOR:
 						if((strlen(s) >= 1 && !Str_cmp(s,-1,0,",",1,2))){
-							printf("%s\n", info);
+							//printf("%s\n", info);
+                            raw_records[count].authors = Str_dup(info,1,0,1);
 							info="";
 							current_op = CONTINUE;
 							current_state = JOURNAL;
@@ -79,7 +82,8 @@ main(){
 						}
 						break;
 					case JOURNAL:
-						printf("%s\n", info);
+						//printf("%s\n", info);
+                        raw_records[count].journal= Str_dup(info,1,0,1);
 						info="";
 						current_op = END;
 						current_state = YEAR;
@@ -124,5 +128,11 @@ main(){
 
 	//Last phase of the program.
 	fclose(fp);
+
+    //Change to the fine format.
+   raw_records_process(raw_records,bibtex_records,count);
+   //Print.
+   bibtex_records_print(bibtex_records,count);
+
 	return 0;
 }
